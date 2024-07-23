@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thrift Store App</title>
+    <link rel="stylesheet" href="style.css">
+	<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <style>
+        body {
+            font-family: Quicksand, sans-serif;
+            font-weight: 600;
+			margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+			height: 100vh;
+			overflow: hidden;
+			user-select: none;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            background-color: #f6f1e4; /*white; */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+			position: relative;
+			overflow: hidden;
+			height: 100%;
+        }
+
+        .header {
+            background-color: #00a8c6;
+            padding: 10px;
+            color: white;
+			position: absolute;
+			justify-content: space-between;
+			top: 0;
+			left: 0;
+			width: 100%;
+			z-index: 1000;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .time {
+            font-size: 1.2em;
+        }
+
+        .status-icons {
+            /* Add styles for status icons here */
+        }
+
+        .search-bar {
+            display: flex;
+			align-items: center;
+			flex: 1;
+            margin-right: 20px;
+			font-family: 'Quicksand', sans-serif;
+			font-weight: 600;
+        }
+
+        .search-bar input {
+            width: 80%;
+            padding: 10px;
+            border-radius: 25px;
+            border: 3px solid #000;
+			box-shadow: 1px 1px 0px rgba(0, 0, 0, 1);
+        }
+
+        .profile-pic img {
+			margin-left: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+	
+        .categories-scroll {
+            overflow-x: hidden;
+            white-space: nowrap;
+            margin-top: 10px;
+			position: relative;
+			cursor: grab;
+        }
+		
+
+        .categories {
+            display: inline-flex;
+        }
+
+        .categories button {
+		    font-family: 'Quicksand', sans-serif;
+			font-weight: 600;
+            background-color: #ff6f61;
+			border: 3px solid #000;
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-right: 10px;
+			margin-bottom: 3px;
+			box-shadow: 1px 1px 0px rgba(0, 0, 0, 1);
+        }
+
+        .main-content {
+            padding: 20px;
+			overflow-y: auto;
+			height: calc(100vh - 190px);
+			margin-top: 160px; /* Ensure content starts below header */
+			margin-bottom: 160px; /* Ensure content ends above footer */
+			::-webkit-scrollbar {
+				display: none;
+			}
+			/* Optionally, style the scrollbar for other browsers if needed */
+			scrollbar-width: none; /* For Firefox */
+			-ms-overflow-style: none; /* For Internet Explorer/Edge */
+        }
+
+		
+		.carousel-inner {
+			max-height: 250px;
+			border: 5px solid #000;
+		}
+		
+		.carousel-caption h3 {
+			color: white;
+			text-shadow:
+				1px 1px 0 #000, 
+				-1px -1px 0 #000, 
+				1px -1px 0 #000, 
+				-1px 1px 0 #000, 
+				1px 0 0 #000, 
+				-1px 0 0 #000, 
+				0 1px 0 #000, 
+				0 -1px 0 #000;
+ 		}
+		
+		
+		.item {
+			max-height: 250px;
+		}
+		
+        .carousel {
+            display: flex;
+            overflow: hidden;
+            width: 100%;
+        }
+
+
+		
+        .new-items-btn {
+			font-family: 'Quicksand', sans-serif;
+			font-weight: 600;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: white;
+            border: 3px solid #000;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            border-radius: 20px;
+            cursor: pointer;
+			box-shadow: 2px 2px 0px rgba(0, 0, 0, 1);
+        }
+	
+		.categories-wrapper{
+			display: flex;
+			justify-content: center;
+			margin-top: 10px; /* Adjust margin as needed */
+			margin-bottom: 40px;
+		}
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); 
+			gap: 10px; 
+			text-align: center;
+        }
+
+		.category {
+			font-family: 'Quicksand', sans-serif;
+			font-weight: 600;
+			position: relative;
+			background-size: cover;
+			background-position: center;
+			color: #000;
+			background-color: #fff;
+			border: 3px solid #000;
+			border-radius: 15px;
+			padding: 100px;
+			text-align: center;
+			font-size: 1.2em;
+			cursor: pointer;
+			overflow: hidden;
+			box-shadow: 2px 2px 0px rgba(0, 0, 0, 1);
+		}
+		
+		.category .category-text {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			background-color: #fff;
+			border: 3px solid #000;
+			padding: 10px;
+			border-radius: 5px;
+		}
+		
+		
+
+        .footer {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            background-color: #00a8c6;
+            position: absolute;
+            bottom: 0;
+			left: 0;
+            width: 100%;
+            color: white;
+        }
+
+        .nav-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="status-bar">
+                <span class="time">9:41</span>
+                <div class="status-icons">
+                    <!-- Add your status icons here -->
+                </div>
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="Search">
+				<div class="profile-pic">
+                    <img src="Images/Top_Menu.png" alt="Profile Picture">
+                </div>
+            </div>
+            <div class="categories-scroll" id="categories-scroll">
+                <div class="categories" id="categories">
+                    <button class="button">Clothing</button>
+                    <button class="button">Furniture</button>
+                    <button class="button">Books</button>
+                    <button class="button">Home Decor</button>
+                    <button class="button">Kitchenware</button>
+                    <!-- Add more categories if needed -->
+                </div>
+            </div>
+        </div>
+        <div class="main-content" id="mainContent">
+			<div id="myCarousel" class="carousel slide" data-ride="carousel">
+				<!-- Indicators -->
+				<ol class="carousel-indicators">
+				<li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+				<li data-target="#myCarousel" data-slide-to="1"></li>
+				<li data-target="#myCarousel" data-slide-to="2"></li>
+				</ol>
+			
+				<!-- Wrapper for slides -->
+				<div class="carousel-inner">
+			
+				<div class="item active">
+					<img src="Images/Thrift_Clothes.jpeg" alt="1" style="width:100%;">
+					<div class="carousel-caption">
+					<h3>Clothes</h3>
+					<p></p>
+					</div>
+				</div>
+			
+				<div class="item">
+					<img src="Images/Thrift_Electronics.jpeg" alt="2" style="width:100%;">
+					<div class="carousel-caption">
+					<h3>Electronics</h3>
+					<p></p>
+					</div>
+				</div>
+			
+				<div class="item">
+					<img src="Images/Thrift_Sports.jpeg" alt="3" style="width:100%;">
+					<div class="carousel-caption">
+					<h3>Sports</h3>
+					<p></p>
+					</div>
+				</div>
+			
+				</div>
+			
+				<!-- Left and right controls -->
+				<a class="left carousel-control" href="#myCarousel" data-slide="prev">
+				<span class="glyphicon glyphicon-chevron-left"></span>
+				<span class="sr-only">Previous</span>
+				</a>
+				<a class="right carousel-control" href="#myCarousel" data-slide="next">
+				<span class="glyphicon glyphicon-chevron-right"></span>
+				<span class="sr-only">Next</span>
+				</a>
+				<button class="new-items-btn">New Items In-Stock</button>
+			</div>
+            
+			<div class = "categories-wrapper"> 
+				<div class="categories-grid">
+					<button class="category" style="background-image: url('./Images/browse_by_categories.jpeg');">
+						<div class="category-text">Brows by Categories</div>
+					</button>
+					<button class="category" style="background-image: url('./Images/browsing_history.jpeg');">
+						<div class="category-text">Browsing History</div>
+					</button>
+					<button class="category" style="background-image: url('./Images/picks_for_you.jpeg');">
+						<div class="category-text">Picks for you</div>
+					</button>
+					<button class="category" style="background-image: url('./Images/deals_for_you.jpeg');">
+						<div class="category-text">Deals for you</div>
+					</button>
+				</div>
+			</div>
+        </div>
+		
+		<div class="footer">
+			<button class="nav-button" id="homeBtn"><img src="./Images/home_2.png" alt="Home"></button>
+			<button class="nav-button" id="mapBtn"><img src="./Images/map.png" alt="Map"></button>
+			<button class="nav-button" id="favoritesBtn"><img src="./Images/favorites.png" alt="Favorites"></button>
+			<button class="nav-button" id="profileBtn"><img src="./Images/profile.png" alt="Profile"></button>
+		</div>
+    </div>
+    <script>
+        		
+		document.addEventListener('DOMContentLoaded', function(){
+			//const categoriesScroll = document.getElementById('categories-scroll');
+			const categoriesScroll = document.querySelector('.categories-scroll');
+			//const categories = document.getElementById('categories');
+			
+			let isMouseDown = false;
+			let startX;
+			let scrollLeft;
+			
+			categoriesScroll.addEventListener('mousedown', (e) => {
+				isMouseDown = true;
+				startX = e.pageX - categoriesScroll.offsetLeft;
+				scrollLeft = categoriesScroll.scrollLeft;
+				categoriesScroll.style.cursor = 'grabbing'; // Change cursor to indicate grabbing
+			});
+			
+			categoriesScroll.addEventListener('mouseleave', () => {
+				isMouseDown = false;
+				categoriesScroll.style.cursor = 'grab'; // Reset cursor on mouse leave
+			});
+			
+			categoriesScroll.addEventListener('mouseup', () => {
+				isMouseDown = false;
+				categoriesScroll.style.cursor = 'grab'; // Reset cursor on mouse up
+			});
+			
+			categoriesScroll.addEventListener('mousemove', (e) => {
+				if (!isMouseDown) return;
+				e.preventDefault();
+				const x = e.pageX - categoriesScroll.offsetLeft;
+				const walk = (x - startX) * 2; // Adjust multiplier for smoother scrolling
+				categoriesScroll.scrollLeft = scrollLeft - walk;
+			});
+			
+			const mainContent = document.getElementById('mainContent');
+			let isMouseDownMain = false;
+			let startXMain;
+			let startYMain;
+			let scrollLeftMain;
+			let scrollTopMain;
+		
+			mainContent.addEventListener('mousedown', function(e) {
+				isMouseDownMain = true;
+				startXMain = e.pageX - mainContent.offsetLeft;
+				startYMain = e.pageY - mainContent.offsetTop;
+				scrollLeftMain = mainContent.scrollLeft;
+				scrollTopMain = mainContent.scrollTop;
+				mainContent.style.cursor = 'grabbing'; // Change cursor to indicate grabbing
+			});
+		
+			mainContent.addEventListener('mouseleave', function() {
+				if (isMouseDownMain) {
+					isMouseDownMain = false;
+					mainContent.style.cursor = 'auto'; // Reset cursor on mouse leave
+				}
+			});
+		
+			mainContent.addEventListener('mouseup', function() {
+				if (isMouseDownMain) {
+					isMouseDownMain = false;
+					mainContent.style.cursor = 'auto'; // Reset cursor on mouse up
+				}
+			});
+		
+			mainContent.addEventListener('mousemove', function(e) {
+				if (isMouseDownMain) {
+					e.preventDefault();
+					const x = e.pageX - mainContent.offsetLeft;
+					const y = e.pageY - mainContent.offsetTop;
+					const walkX = (x - startXMain) * 2; // Adjust multiplier for smoother scrolling
+					const walkY = (y - startYMain) * 2; // Adjust multiplier for smoother scrolling
+					mainContent.scrollLeft = scrollLeftMain - walkX;
+					mainContent.scrollTop = scrollTopMain - walkY;
+				}
+			});
+		});
+    </script>
+</body>
+</html>
